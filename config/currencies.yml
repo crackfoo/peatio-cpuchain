@@ -1,7 +1,7 @@
-- id:                     ltc
-  name:                   Litecoin
-  blockchain_key:         ltc-testnet
-  symbol:                 'Ł'
+- id:                     cpu
+  name:                   CPUchain
+  blockchain_key:         cpu-mainnet
+  symbol:                 'C'
   type:                   coin
   precision:              8
   base_factor:            100_000_000

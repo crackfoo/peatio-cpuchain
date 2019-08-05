@@ -1,32 +1,32 @@
-RSpec.describe Peatio::Litecoin::Blockchain do
+RSpec.describe Peatio::CPUchain::Blockchain do
   context :features do
     it 'defaults' do
-      blockchain1 = Peatio::Litecoin::Blockchain.new
-      expect(blockchain1.features).to eq Peatio::Litecoin::Blockchain::DEFAULT_FEATURES
+      blockchain1 = Peatio::CPUchain::Blockchain.new
+      expect(blockchain1.features).to eq Peatio::CPUchain::Blockchain::DEFAULT_FEATURES
     end
 
     it 'override defaults' do
-      blockchain2 = Peatio::Litecoin::Blockchain.new(cash_addr_format: true)
+      blockchain2 = Peatio::CPUchain::Blockchain.new(cash_addr_format: true)
       expect(blockchain2.features[:cash_addr_format]).to be_truthy
     end
 
     it 'custom feautures' do
-      blockchain3 = Peatio::Litecoin::Blockchain.new(custom_feature: :custom)
-      expect(blockchain3.features.keys).to contain_exactly(*Peatio::Litecoin::Blockchain::SUPPORTED_FEATURES)
+      blockchain3 = Peatio::CPUchain::Blockchain.new(custom_feature: :custom)
+      expect(blockchain3.features.keys).to contain_exactly(*Peatio::CPUchain::Blockchain::SUPPORTED_FEATURES)
     end
   end
 
   context :configure do
-    let(:blockchain) { Peatio::Litecoin::Blockchain.new }
+    let(:blockchain) { Peatio::CPUchain::Blockchain.new }
     it 'default settings' do
       expect(blockchain.settings).to eq({})
     end
 
     it 'currencies and server configuration' do
-      currencies = [{ id: :ltc,
+      currencies = [{ id: :cpu,
                       base_factor: 100_000_000,
                       options: {} }]
-      settings = { server: 'http://user:password@127.0.0.1:19332',
+      settings = { server: 'http://user:password@127.0.0.1:19707',
                    currencies: currencies,
                    something: :custom }
       blockchain.configure(settings)
@@ -38,8 +38,8 @@ RSpec.describe Peatio::Litecoin::Blockchain do
     before(:all) { WebMock.disable_net_connect! }
     after(:all)  { WebMock.allow_net_connect! }
 
-    let(:server) { 'http://user:password@127.0.0.1:19332' }
-    let(:server_without_authority) { 'http://127.0.0.1:19332' }
+    let(:server) { 'http://user:password@127.0.0.1:19707' }
+    let(:server_without_authority) { 'http://127.0.0.1:19707' }
 
     let(:response) do
       response_file
@@ -52,7 +52,7 @@ RSpec.describe Peatio::Litecoin::Blockchain do
     end
 
     let(:blockchain) do
-      Peatio::Litecoin::Blockchain.new.tap {|b| b.configure(server: server)}
+      Peatio::CPUchain::Blockchain.new.tap {|b| b.configure(server: server)}
     end
 
     before do
@@ -68,7 +68,7 @@ RSpec.describe Peatio::Litecoin::Blockchain do
     end
 
     it 'raises error if there is error in response body' do
-      stub_request(:post, 'http://127.0.0.1:19332')
+      stub_request(:post, 'http://127.0.0.1:19707')
         .with(body: { jsonrpc: '1.0',
                       method: :getblockcount,
                       params:  [] }.to_json)
@@ -151,13 +151,13 @@ RSpec.describe Peatio::Litecoin::Blockchain do
       end
 
       let(:currency) do
-        { id: :ltc,
+        { id: :cpu,
           base_factor: 100_000_000,
           options: {} }
       end
 
       let(:blockchain) do
-        Peatio::Litecoin::Blockchain.new.tap { |b| b.configure(currencies: [currency]) }
+        Peatio::CPUchain::Blockchain.new.tap { |b| b.configure(currencies: [currency]) }
       end
 
       it 'builds formatted transactions for passed transaction' do
@@ -167,13 +167,13 @@ RSpec.describe Peatio::Litecoin::Blockchain do
 
     context 'multiple currencies' do
       let(:currency1) do
-        { id: :ltc1,
+        { id: :cpu1,
           base_factor: 100_000_000,
           options: {} }
       end
 
       let(:currency2) do
-        { id: :ltc2,
+        { id: :cpu2,
           base_factor: 100_000_000,
           options: {} }
       end
@@ -218,7 +218,7 @@ RSpec.describe Peatio::Litecoin::Blockchain do
       end
 
       let(:blockchain) do
-        Peatio::Litecoin::Blockchain.new.tap do |b|
+        Peatio::CPUchain::Blockchain.new.tap do |b|
           b.configure(currencies: [currency1, currency2])
         end
       end
@@ -230,13 +230,13 @@ RSpec.describe Peatio::Litecoin::Blockchain do
 
     context 'single vout transaction' do
       let(:currency) do
-        { id: :ltc,
+        { id: :cpu,
           base_factor: 100_000_000,
           options: {} }
       end
 
       let(:blockchain) do
-        Peatio::Litecoin::Blockchain.new.tap { |b| b.configure(currencies: [currency]) }
+        Peatio::CPUchain::Blockchain.new.tap { |b| b.configure(currencies: [currency]) }
       end
 
       let(:raw_transaction) do
@@ -282,8 +282,8 @@ RSpec.describe Peatio::Litecoin::Blockchain do
     before(:all) { WebMock.disable_net_connect! }
     after(:all)  { WebMock.allow_net_connect! }
 
-    let(:server) { 'http://user:password@127.0.0.1:19332' }
-    let(:server_without_authority) { 'http://127.0.0.1:19332' }
+    let(:server) { 'http://user:password@127.0.0.1:19707' }
+    let(:server_without_authority) { 'http://127.0.0.1:19707' }
 
     let(:getblockhash_response_file) do
       File.join('spec', 'resources', 'getblockhash', '40500.json')
@@ -306,7 +306,7 @@ RSpec.describe Peatio::Litecoin::Blockchain do
     end
 
     let(:blockchain) do
-      Peatio::Litecoin::Blockchain.new.tap {|b| b.configure(server: server)}
+      Peatio::CPUchain::Blockchain.new.tap {|b| b.configure(server: server)}
     end
 
     before do
@@ -324,15 +324,15 @@ RSpec.describe Peatio::Litecoin::Blockchain do
     end
 
     let(:currency) do
-      { id: :ltc,
+      { id: :cpu,
         base_factor: 100_000_000,
         options: {} }
     end
 
-    let(:server) { 'http://user:password@127.0.0.1:19332' }
-    let(:server_without_authority) { 'http://127.0.0.1:19332' }
+    let(:server) { 'http://user:password@127.0.0.1:19707' }
+    let(:server_without_authority) { 'http://127.0.0.1:19707' }
     let(:blockchain) do
-      Peatio::Litecoin::Blockchain.new.tap { |b| b.configure(server: server, currencies: [currency]) }
+      Peatio::CPUchain::Blockchain.new.tap { |b| b.configure(server: server, currencies: [currency]) }
     end
 
     subject { blockchain.fetch_block!(40500) }
@@ -350,8 +350,8 @@ RSpec.describe Peatio::Litecoin::Blockchain do
     before(:all) { WebMock.disable_net_connect! }
     after(:all)  { WebMock.allow_net_connect! }
 
-    let(:server) { 'http://user:password@127.0.0.1:19332' }
-    let(:server_without_authority) { 'http://127.0.0.1:19332' }
+    let(:server) { 'http://user:password@127.0.0.1:19707' }
+    let(:server_without_authority) { 'http://127.0.0.1:19707' }
 
     let(:response) do
       response_file
@@ -364,7 +364,7 @@ RSpec.describe Peatio::Litecoin::Blockchain do
     end
 
     let(:blockchain) do
-      Peatio::Litecoin::Blockchain.new.tap {|b| b.configure(server: server)}
+      Peatio::CPUchain::Blockchain.new.tap {|b| b.configure(server: server)}
     end
 
     before do
@@ -379,7 +379,7 @@ RSpec.describe Peatio::Litecoin::Blockchain do
       it 'requests rpc listaddressgroupings and finds address balance' do
         address = 'QQggiZZSU1qTibRfK5RBgXSeBT71Ek7fLe'
 
-        result = blockchain.load_balance_of_address!(address, :ltc)
+        result = blockchain.load_balance_of_address!(address, :cpu)
         expect(result).to be_a(BigDecimal)
         expect(result).to eq('0.99983359'.to_d)
       end
@@ -387,7 +387,7 @@ RSpec.describe Peatio::Litecoin::Blockchain do
       it 'requests rpc listaddressgroupings and finds address with zero balance' do
         address = 'QRnrwkUBQ2E4ZJ3bj8jvn4Nwx4nJ2U7wXF'
 
-        result = blockchain.load_balance_of_address!(address, :ltc)
+        result = blockchain.load_balance_of_address!(address, :cpu)
         expect(result).to be_a(BigDecimal)
         expect(result).to eq('0'.to_d)
       end
@@ -396,13 +396,13 @@ RSpec.describe Peatio::Litecoin::Blockchain do
     context 'address is not defined' do
       it 'requests rpc listaddressgroupings and do not find address' do
         address = 'LLgJTbzZMsRTCUF1NtvvL9SR1a4pVieW89'
-        expect{ blockchain.load_balance_of_address!(address, :ltc)}.to raise_error(Peatio::Blockchain::UnavailableAddressBalanceError)
+        expect{ blockchain.load_balance_of_address!(address, :cpu)}.to raise_error(Peatio::Blockchain::UnavailableAddressBalanceError)
       end
     end
 
     context 'client error is raised' do
       before do
-        stub_request(:post, 'http://127.0.0.1:19332')
+        stub_request(:post, 'http://127.0.0.1:19707')
           .with(body: { jsonrpc: '1.0',
                         method: :listaddressgroupings,
                         params: [] }.to_json)
@@ -412,7 +412,7 @@ RSpec.describe Peatio::Litecoin::Blockchain do
       end
 
       it 'raise wrapped client error' do
-        expect{ blockchain.load_balance_of_address!('anything', :ltc)}.to raise_error(Peatio::Blockchain::ClientError)
+        expect{ blockchain.load_balance_of_address!('anything', :cpu)}.to raise_error(Peatio::Blockchain::ClientError)
       end
     end
   end
